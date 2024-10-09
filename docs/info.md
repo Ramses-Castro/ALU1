@@ -3,7 +3,6 @@ module ALU #(
 )(
   input [WIDTH-1:0] in1, in2,       // Entradas A y B de la ALU (in1 e in2)
   input [1:0] op,                   // Código de operación
-//  input invalid_data,               // Señal para datos inválidos
   output reg [2*WIDTH-1:0] out,     // Salida de la ALU (doble ancho)
   output reg zero,                  // Señal de resultado cero (flag zero)
   output reg error                  // Señal de error (flag error división por cero o datos inválidos)
@@ -20,10 +19,6 @@ always @(*) begin
   error = 0;
   zero = 0;
   
-//  if (invalid_data) begin
-//    error = 1;  // Error si los datos son inválidos
-//    out = {(2*WIDTH){1'b1}}; // Forzar salida a ser -1 (todos 1's)
-//  end else 
   begin
     case (op)
       SUM: begin
