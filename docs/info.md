@@ -1,54 +1,69 @@
-module ALU #(
-  parameter WIDTH = 3
+module ALU_Displays #(
+    parameter WIDTH = 3 // Definición del parámetro WIDTH
 )(
-  input [WIDTH-1:0] in1, in2,       // Entradas A y B de la ALU (in1 e in2)
-  input [1:0] op,                   // Código de operación
-  output reg [2*WIDTH-1:0] out,     // Salida de la ALU (doble ancho)
-  output reg zero,                  // Señal de resultado cero (flag zero)
-  output reg error                  // Señal de error (flag error división por cero o datos inválidos)
+    input mclk,                      // Esto se conecta a la entrada de selección del multiplexor y a los displays pero con not en uno
+    output [3:0] select_disp,        // Selección del display
+
+    input [WIDTH-1:0] in1, in2,      // Entradas A y B de la ALU (in1 e in2)
+    input [1:0] op,                  // Código de operación
+
+    output zero,                 // Señal de resultado cero (flag zero)
+    output error,                // Señal de error
+
+    // Segmentos del display
+    output AE,
+    output BE,
+    output CE,
+    output DE,
+    output EE,
+    output FE,
+    output GE
+
 );
 
-// Definición de operaciones para el selector
-localparam SUM = 2'b00;
-localparam SUB = 2'b01;
-localparam MUL = 2'b10;
-localparam DIV = 2'b11;
 
-always @(*) begin
-  // Inicializar flags de error y zero en 0
-  error = 0;
-  zero = 0;
-  
-  begin
-    case (op)
-      SUM: begin
-        out = in1 + in2;
-      end
-      SUB: begin
-        out = in1 - in2;
-      end
-      MUL: begin
-        out = in1 * in2;
-      end
-      DIV: begin
-        if (in2 == 0) begin
-          error = 1;  // Error si se intenta dividir por 0
-          out = {(2*WIDTH){1'b1}}; // Forzar salida a ser -1 (todos 1's)
-        end else begin
-          out = in1 / in2;
-        end
-      end
-      default: begin
-        error = 1;  // Activar error si la operación no es válida
-        out = {(2*WIDTH){1'b1}}; // Forzar salida a ser -1 (todos 1's)
-      end
-    endcase
-  end
-  
-  // Activar la señal zero si el resultado es 0
-  if (out == 0) begin
-    zero = 1;
-  end
-end
+
+// Señales internas para conectar las salidas de la ALU y la entrada del multiplexor
+wire [3:0] num1mux;
+wire [3:0] num2mux;
+wire zerow;
+wire errorw;
+
+// Instanciación de los módulos
+ALU #(.WIDTH(3)) Etapa0 (
+    .in1(in1), 
+    .in2(in2), 
+    .op(op), 
+    .dec_bin(num1mux), 
+    .unis_bin(num2mux), 
+    .zero(zerow), 
+    .error(errorw)
+);
+
+
+
+Divisor_frec Etapa2 (
+    .mclk(mclk),
+    .q_int1(select_disp[0]),
+    .q_int2(select_disp[1])
+);
+
+Multiplex_decoBCD Etapa1 (
+    .A(AE),
+    .B(BE),
+    .C(CE),
+    .D(DE),
+    .E(EE),
+    .F(FE),
+    .G(GE),
+    .J(num1mux),
+    .K(num2mux),
+    .SEL(select_disp[1])  // Revisa si mclk es el selector adecuado
+   
+);
+assign select_disp[2]=1;
+assign select_disp[3]=1;
+assign zero=zerow;
+assign error=errorw;
 
 endmodule
