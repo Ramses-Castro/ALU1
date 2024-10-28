@@ -1,6 +1,6 @@
 # Tiny Tapeout project information
 project:
-  title:        "ALU1"      # Project title
+  title:        "ALU"      # Project title
   author:       "Victor"      # Your name
   discord:      "N/A"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description:  "An ALU (Arithmetic Logic Unit) is a fundamental component of the CPU that performs arithmetic operations (such as addition and subtraction) and logical operations (such as AND, OR, and NOT) on data."      # One line description of what your project does
