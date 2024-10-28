@@ -16,80 +16,50 @@ module tt_um_example (
     input  wire       rst_n     // reset_n - low to reset
 );
 
-  // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+    // Señales internas
+    wire [3:0] num1mux;
+    wire [3:0] num2mux;
+    wire zerow;
+    wire errorw;
+    wire [3:0] select_disp;
 
-endmodule
+    // Instancia del módulo ALU con ancho ajustado a WIDTH = 3
+    ALU #(.WIDTH(3)) Etapa0 (
+        .in1(uio_in[2:0]),      // Entrada A
+        .in2(uio_in[5:3]),      // Entrada B
+        .op(ui_in[1:0]),        // Código de operación
+        .dec_bin(num1mux),      // Salida decenas
+        .unis_bin(num2mux),     // Salida unidades
+        .zero(zerow),           // Señal de resultado cero
+        .error(errorw)          // Señal de error
+    );
 
+    // Divisor de frecuencia
+    Divisor_frec Etapa2 (
+        .mclk(clk),
+        .q_int1(select_disp[0]),
+        .q_int2(select_disp[1])
+    );
 
-module ALU_Displays #(
-    parameter WIDTH = 3 // Definición del parámetro WIDTH
-)(
-    input ui_in,                      // Esto se conecta a la entrada de selección del multiplexor y a los displays pero con not en uno
-    output [3:0] uo_out,        // Selección del display
+    // Módulo de multiplexor BCD
+    Multiplex_decoBCD Etapa1 (
+        .A(uo_out[0]),
+        .B(uo_out[1]),
+        .C(uo_out[2]),
+        .D(uo_out[3]),
+        .E(uo_out[4]),
+        .F(uo_out[5]),
+        .G(uo_out[6]),
+        .J(num1mux),
+        .K(num2mux),
+        .SEL(select_disp[1])
+    );
 
-    input [WIDTH-1:0] uio_in, in2,      // Entradas A y B de la ALU (in1 e in2)
-    input [1:0] op,                  // Código de operación
-
-    output zero,                 // Señal de resultado cero (flag zero)
-    output error,                // Señal de error
-
-    // Segmentos del display
-    output AE,
-    output BE,
-    output CE,
-    output DE,
-    output EE,
-    output FE,
-    output GE
-
-);
-
-
-
-// Señales internas para conectar las salidas de la ALU y la entrada del multiplexor
-wire [3:0] num1mux;
-wire [3:0] num2mux;
-wire zerow;
-wire errorw;
-
-// Instanciación de los módulos
-ALU #(.WIDTH(3)) Etapa0 (
-    .in1(in1), 
-    .in2(in2), 
-    .op(op), 
-    .dec_bin(num1mux), 
-    .unis_bin(num2mux), 
-    .zero(zerow), 
-    .error(errorw)
-);
-
-
-
-Divisor_frec Etapa2 (
-    .mclk(mclk),
-    .q_int1(select_disp[0]),
-    .q_int2(select_disp[1])
-);
-
-Multiplex_decoBCD Etapa1 (
-    .A(AE),
-    .B(BE),
-    .C(CE),
-    .D(DE),
-    .E(EE),
-    .F(FE),
-    .G(GE),
-    .J(num1mux),
-    .K(num2mux),
-    .SEL(select_disp[1])  // Revisa si mclk es el selector adecuado
-   
-);
-assign select_disp[2]=1;
-assign select_disp[3]=1;
-assign zero=zerow;
-assign error=errorw;
+    // Asignaciones de control
+    assign select_disp[2] = 1;
+    assign select_disp[3] = 1;
+    assign uo_out[7] = zerow;   // Señal zero en uo_out[7]
+    assign uio_out[7] = errorw; // Señal error en uio_out[7]
+    assign uio_oe = 8'b11111111; // Configura uio_out como salida
 
 endmodule
