@@ -2,7 +2,7 @@
 project:
   title:        "ALU"      # Project title
   author:       "Victor"      # Your name
-  discord:      "N/A"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
+  discord:      "Axel.nz@outlook.com"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description:  "An ALU (Arithmetic Logic Unit) is a fundamental component of the CPU that performs arithmetic operations (such as addition and subtraction) and logical operations (such as AND, OR, and NOT) on data."      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz:     10Mhz      # Clock frequency in Hz (or 0 if not applicable)
