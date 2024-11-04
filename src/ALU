@@ -1,12 +1,11 @@
 `default_nettype none
 
 module ALU_Displays (
-    input  wire [2:0] ui_in,  //in1
+    input  wire [2:0] ui_in,  // in1
     output wire [3:0] uo_out, // select disp
     input  wire [2:0] uio_in, // in2
     output wire [6:0] uio_out,  // segmentos (AE-GE)
-  //  output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
-    input  wire       ena, //error     // will go high when the design is enabled
+    input  wire       ena, // error  // will go high when the design is enabled
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
 );
@@ -17,6 +16,7 @@ module ALU_Displays (
     wire zerow;
     wire errorw;
     wire [3:0] select_disp;
+    wire [3:0] multiplexed_output;
 
     // Instancia del módulo ALU con ancho ajustado a WIDTH = 3
     ALU #(.WIDTH(3)) Etapa0 (
@@ -36,25 +36,45 @@ module ALU_Displays (
         .q_int2(select_disp[1])
     );
 
-    // Módulo de multiplexor BCD
-    Multiplex_decoBCD Etapa1 (
-        .A(uo_out[0]),
-        .B(uo_out[1]),
-        .C(uo_out[2]),
-        .D(uo_out[3]),
-        .E(uo_out[4]),
-        .F(uo_out[5]),
-        .G(uo_out[6]),
-        .J(num1mux),
-        .K(num2mux),
-        .SEL(select_disp[1])
+    // Instancia del módulo Multiplexor2_1
+    Multiplexor2_1 Etapa1 (
+        .J(num1mux),           // Entrada J
+        .K(num2mux),           // Entrada K
+        .EL(select_disp[1]),   // Señal de control
+        .SA(multiplexed_output) // Salida del multiplexor
     );
+
+    // Conexión de multiplexed_output a los segmentos
+    assign uio_out[6:0] = multiplexed_output;
 
     // Asignaciones de control
     assign select_disp[2] = 1;
     assign select_disp[3] = 1;
-    assign uo_out[7] = zerow;   // Señal zero en uo_out[7]
-    assign uio_out[7] = errorw; // Señal error en uio_out[7]
+    assign uo_out[7] = zerow;    // Señal zero en uo_out[7]
+    assign uio_out[7] = errorw;  // Señal error en uio_out[7]
     assign uio_oe = 8'b11111111; // Configura uio_out como salida
 
 endmodule
+
+// Módulo de multiplexor 2 a 1
+module Multiplexor2_1 (
+    input [3:0] J,      // Entrada J de 4 bits
+    input [3:0] K,      // Entrada K de 4 bits
+    input EL,           // Señal de control (selector)
+    output [3:0] SA     // Salida de 4 bits
+);
+
+    assign SA = (EL == 1'b0) ? J : K;  // Selección de la salida con base en EL
+
+endmodule
+
+
+
+
+
+
+
+
+
+
+
