@@ -1,41 +1,59 @@
-![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg)
+This project implements an Arithmetic Logic Unit (ALU) that performs basic operations between two 3-bit numbers (in1 and in2). The results are displayed on 7-segment displays. Below is a detailed explanation of each module's functionality and how they integrate.
 
-# Tiny Tapeout Verilog Project Template
+1. ALU Module
+Description: The ALU (Arithmetic Logic Unit) is the core of the system. It performs arithmetic and logic operations as defined by the operation code op. The four operations are:
 
-- [Read the documentation for project](docs/info.md)
+SUM (Addition): Adds in1 and in2.
+SUB (Subtraction): Subtracts in2 from in1 if in1 is greater than or equal to in2; if not, it activates the error signal.
+MUL (Multiplication): Multiplies in1 by in2.
+DIV (Division): Divides in1 by in2 if in2 is not zero; otherwise, the error signal is activated.
+Internal Operation: The ALU calculates each operation's result and separates it into tens and units for easier visualization. These values are stored in dec_bin and unis_bin, which represent the tens and units in binary format, respectively.
 
-## What is Tiny Tapeout?
+Flags (Status Signals):
+zero: Indicates if the result is zero.
+error: Indicates if an error occurred (e.g., division by zero or negative subtraction).
+2. Multiplexor2_1 Module
+Description: This 2-to-1 multiplexer selects between two 4-bit inputs (J and K) based on the control signal EL. If EL is 0, it chooses input J; if 1, it selects K. This module is essential for alternating between tens and units on the 7-segment displays.
 
-TinyTapeout is an educational project that aims to make it easier and cheaper than ever to get your digital designs manufactured on a real chip.
+3. Frequency Divider Module
+Description: The frequency divider adjusts the switching speed between the tens and units on the display, creating a rapid flicker so that both digits appear simultaneously to the human eye.
 
-To learn more and get started, visit https://tinytapeout.com.
+Internal Operation: This module counts clock pulses in a register q. The output signals q_int1 and q_int2 divide the base clock (mclk), providing a switching signal that controls the alternating display.
 
-## Verilog Projects
+4. Multiplex_decoBCD Module
+Description: This module connects the 2-to-1 multiplexer and the BCD (Binary-Coded Decimal) decoder to alternate between tens and units on the 7-segment display. It takes the decimal number from the ALU (separated into tens and units) and sends it to the decoder according to the SEL signal from the frequency divider. This allows both the tens and units to be shown on the same display alternately.
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Optionally, add a testbench to the `test` folder. See [test/README.md](test/README.md) for more information.
+Multiplexor2_1 (Stage 0): Selects between the ALU’s tens and units, switching between them based on SEL.
+BCD Decoder (Stage 1): Converts the BCD number (digit from 0 to 9) to the A-G segments for the display.
+5. BCD Decoder Module
+Description: This decoder converts a 4-bit input (BCD) to a 7-segment display format. Each input combination (W, X, Y, Z) represents a number from 0 to 9, and the decoder activates the corresponding segments to form the desired digit on the display.
 
-The GitHub action will automatically build the ASIC files using [OpenLane](https://www.zerotoasiccourse.com/terminology/openlane/).
+Case 4'b0000: Activates segments to show "0" on the display.
+Cases 4'b0001 to 4'b1001: Activates segments for numbers 1 through 9.
+6. ALU_Display Module
+Description: This top-level module integrates all other modules, connecting them and coordinating their functions to achieve the system's overall functionality.
 
-## Enable GitHub actions to build the results page
+Inputs:
 
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+mclk: Base clock signal.
+in1 and in2: Inputs to the ALU.
+op: 2-bit operation code.
+Outputs:
 
-## Resources
+select_disp: Display selection for showing tens and units.
+AE to GE: Segments of the 7-segment display.
+zero: Zero flag from the ALU.
+error: Error flag from the ALU.
+Internal Operation:
 
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://docs.google.com/document/d/1aUUZ1jthRpg4QURIIyzlOaPWlmQzr-jBn3wZipVUPt4)
+ALU (Stage 0): Performs the operation specified by op and splits the result into tens (num1mux) and units (num2mux).
+Frequency Divider (Stage 2): Controls the alternating speed between the tens and units so that the display shows both digits in the same position.
+Multiplex_decoBCD (Stage 1): Selects and decodes the numbers num1mux and num2mux into display segments (AE to GE) to display the final value.
+Display Selection (select_disp): The system selects one display at a time using select_disp[0] and select_disp[1] to alternate between tens and units. Bits select_disp[2] and select_disp[3] are held high to keep the other displays off.
 
-## What next?
-
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@matthewvenn](https://twitter.com/matthewvenn)
+Summary of the Complete Operation
+ALU Operation: The ALU receives two 3-bit numbers (in1 and in2) and an operation code (op) and performs the specified operation.
+Result Decomposition: The ALU converts the result into tens and units, which are the digits to be displayed.
+Display Alternation: The frequency divider alternates quickly between tens and units. This flicker is imperceptible to the human eye, making both digits appear to display simultaneously.
+Multiplexing and BCD Decoding: The multiplexer selects between tens and units, and the BCD decoder converts the value to display segments.
+Display Output: Finally, the 7-segment display shows the result, while the zero and error flags indicate if the result is zero or if there was an error in the operation.
