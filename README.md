@@ -1,4 +1,5 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
+
 This project implements an Arithmetic Logic Unit (ALU) that performs basic operations between two 3-bit numbers (in1 and in2). The results are displayed on 7-segment displays. Below is a detailed explanation of each module's functionality and how they integrate.
 
 1. ALU Module
