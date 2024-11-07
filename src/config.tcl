@@ -1,78 +1,64 @@
-# Control Signals
-set_property package_pin W7 [get_ports {AE}]
-set_property IOSTANDARD LVCMOS33 [get_ports {AE}]
-set_property package_pin W6 [get_ports {BE}]
-set_property IOSTANDARD LVCMOS33 [get_ports {BE}]
-set_property package_pin U8 [get_ports {CE}]
-set_property IOSTANDARD LVCMOS33 [get_ports {CE}]
-set_property package_pin V8 [get_ports {DE}]
-set_property IOSTANDARD LVCMOS33 [get_ports {DE}]
-set_property package_pin U5 [get_ports {EE}]
-set_property IOSTANDARD LVCMOS33 [get_ports {EE}]
-set_property package_pin V5 [get_ports {FE}]
-set_property IOSTANDARD LVCMOS33 [get_ports {FE}]
-set_property package_pin U7 [get_ports {GE}]
-set_property IOSTANDARD LVCMOS33 [get_ports {GE}]
+# Configuración del usuario
+set script_dir [file dirname [file normalize [info script]]]
 
-# Display Selection Signals
-set_property package_pin W4 [get_ports {select_disp[3]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {select_disp[3]}]
-set_property package_pin V4 [get_ports {select_disp[2]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {select_disp[2]}]
-set_property package_pin U4 [get_ports {select_disp[1]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {select_disp[1]}]
-set_property package_pin U2 [get_ports {select_disp[0]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {select_disp[0]}]
+# Cargar la configuración del usuario desde el archivo user_config.tcl
+# - Define el nombre del módulo y lista los archivos de origen
+source $::env(DESIGN_DIR)/user_config.tcl
 
-# Clock Signal
-set_property package_pin W5 [get_ports {mclk}]
-set_property IOSTANDARD LVCMOS33 [get_ports {mclk}]
+# Ahorro de tiempo en algunas verificaciones
+set ::env(RUN_KLAYOUT_XOR) 0
+set ::env(RUN_KLAYOUT_DRC) 0
 
-# Status Indicators
-set_property package_pin L1 [get_ports {zero}]
-set_property IOSTANDARD LVCMOS33 [get_ports {zero}]
-set_property package_pin P1 [get_ports {error}]
-set_property IOSTANDARD LVCMOS33 [get_ports {error}]
+# Evitar buffers de reloj en las salidas
+set ::env(PL_RESIZER_BUFFER_OUTPUT_PORTS) 0
 
-# ALU Input Signals
-set_property package_pin R2 [get_ports {in1[2]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {in1[2]}]
-set_property package_pin T1 [get_ports {in1[1]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {in1[1]}]
-set_property package_pin U1 [get_ports {in1[0]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {in1[0]}]
+# Permitir uso de celdas específicas en sky130
+set ::env(SYNTH_READ_BLACKBOX_LIB) 1
 
-set_property package_pin W2 [get_ports {in2[2]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {in2[2]}]
-set_property package_pin R3 [get_ports {in2[1]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {in2[1]}]
-set_property package_pin T2 [get_ports {in2[0]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {in2[0]}]
+# Configuración de los pines
+# Establecer ubicación de los pines en el diseño
+set ::env(FP_PIN_ORDER_CFG) $::env(DESIGN_DIR)/pin_order.cfg
 
-# ALU Output Signals
-set_property package_pin T3 [get_ports {op[1]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {op[1]}]
-set_property package_pin V2 [get_ports {op[0]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {op[0]}]
+# Ajustar el margen superior e inferior
+set ::env(TOP_MARGIN_MULT) 2
+set ::env(BOTTOM_MARGIN_MULT) 2
 
-# Decoded Binary Outputs
-set_property package_pin N3 [get_ports {dec_bin[3]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {dec_bin[3]}]
-set_property package_pin P3 [get_ports {dec_bin[2]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {dec_bin[2]}]
-set_property package_pin U3 [get_ports {dec_bin[1]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {dec_bin[1]}]
-set_property package_pin W3 [get_ports {dec_bin[0]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {dec_bin[0]}]
+# Tamaño absoluto del dado
+set ::env(FP_SIZING) absolute
+set ::env(DIE_AREA) "0 0 150 170"
+set ::env(FP_CORE_UTIL) 55
 
-# Units Display Outputs
-set_property package_pin V3 [get_ports {unis_bin[3]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {unis_bin[3]}]
-set_property package_pin V13 [get_ports {unis_bin[2]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {unis_bin[2]}]
-set_property package_pin V14 [get_ports {unis_bin[1]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {unis_bin[1]}]
-set_property package_pin U14 [get_ports {unis_bin[0]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {unis_bin[0]}]
+# Parámetros de colocación
+set ::env(PL_BASIC_PLACEMENT) {0}
+set ::env(GRT_ALLOW_CONGESTION) "1"
 
-# End of Configuration for Tiny Tapeout ALU Design
+# Longitud de los pines de entrada y salida
+set ::env(FP_IO_HLENGTH) 2
+set ::env(FP_IO_VLENGTH) 2
+
+# Uso de celdas de decap para solucionar problemas de densidad LI
+set ::env(DECAP_CELL) "\
+    sky130_fd_sc_hd__decap_3 \
+    sky130_fd_sc_hd__decap_4 \
+    sky130_fd_sc_hd__decap_6 \
+    sky130_fd_sc_hd__decap_8 \
+    sky130_ef_sc_hd__decap_12"
+
+# Configuración de reloj
+set ::env(CLOCK_TREE_SYNTH) 1
+# Periodo en ns (ejemplo de 10 kHz)
+set ::env(CLOCK_PERIOD) "20000"
+set ::env(CLOCK_PORT) {mclk}
+
+# Márgenes de slack/hold
+# set ::env(PL_RESIZER_HOLD_SLACK_MARGIN) 0.8 
+# set ::env(GLB_RESIZER_HOLD_SLACK_MARGIN) 0.8 
+
+# Configuración de capas y redes de energía
+set ::env(DESIGN_IS_CORE) 0
+set ::env(RT_MAX_LAYER) {met4}
+
+# Conectar a los rieles de energía
+set ::env(VDD_NETS) [list {vccd1}]
+set ::env(GND_NETS) [list {vssd1}]
+
