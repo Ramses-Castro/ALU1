@@ -4,16 +4,16 @@ module tb;
     reg reset;
     reg ena;  // Señal de habilitación
     reg [3:0] in_data;
-    reg ui_in;   // Añadir el puerto ui_in en el testbench
+    reg [7:0] ui_in;  // Cambié 'ui_in' a un vector de 8 bits
     wire [3:0] out_data;
 
     // Instanciación del módulo tt_um_example
-    project.v (
+    tt_um_example (
         .clk(clk),
         .reset(reset),
         .ena(ena),        // Conectar 'ena'
         .in_data(in_data),
-        .ui_in(ui_in),    // Conectar 'ui_in' aquí
+        .ui_in(ui_in),    // Conectar 'ui_in' aquí como un vector de 8 bits
         .out_data(out_data)
     );
 
@@ -26,7 +26,7 @@ module tb;
         reset = 0;
         ena = 0;  // Deshabilitado por defecto
         in_data = 4'b1010;
-        ui_in = 1; // Inicialización del puerto ui_in
+        ui_in = 8'b00000001; // Inicialización de 'ui_in' como un vector de 8 bits
 
         // Aplicar reset
         reset = 1;
