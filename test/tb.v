@@ -20,7 +20,7 @@ module tb ();
   wire AE, BE, CE, DE, EE, FE, GE;  // Salidas de segmentos para displays de 7 segmentos
 
   // Instanciamos el módulo a probar
-  ALU_Displays #(.WIDTH(3)) user_project (
+  ALU_Displays #(.WIDTH(3)) ALU (
       .mclk(mclk),
       .select_disp(select_disp),
       .in1(in1),
