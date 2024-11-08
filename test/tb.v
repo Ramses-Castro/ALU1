@@ -1,45 +1,76 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-/* This testbench just instantiates the module and makes some convenient wires
-   that can be driven / tested by the cocotb test.py.
-*/
-module tb ();
 
-  // Dump the signals to a VCD file. You can view it with gtkwave.
-  initial begin
-    $dumpfile("tb.vcd");
-    $dumpvars(0, tb);
-    #1;
-  end
+module tb;
 
-  // Wire up the inputs and outputs:
-  reg clk;
-  reg rst_n;
-  reg ena;
-  reg [7:0] ui_in;
-  reg [7:0] uio_in;
-  wire [7:0] uo_out;
-  wire [7:0] uio_out;
-  wire [7:0] uio_oe;
-
-  // Replace tt_um_example with your module name:
-  project.v (
-
-      // Include power ports for the Gate Level test:
-`ifdef GL_TEST
-      .VPWR(1'b1),
-      .VGND(1'b0),
-`endif
-
-      .ui_in  (ui_in),    // Dedicated inputs
-      .uo_out (uo_out),   // Dedicated outputs
-      .uio_in (uio_in),   // IOs: Input path
-      .uio_out(uio_out),  // IOs: Output path
-      .uio_oe (uio_oe),   // IOs: Enable path (active high: 0=input, 1=output)
-      .ena    (ena),      // enable - goes high when design is selected
-      .clk    (clk),      // clock
-      .rst_n  (rst_n)     // not reset
-  );
+    // Parámetros
+    parameter WIDTH = 3;
+    
+    // Señales de prueba
+    reg [WIDTH-1:0] in1, in2;
+    reg [1:0] op;
+    wire [3:0] dec_bin;
+    wire [3:0] unis_bin;
+    wire zero;
+    wire error;
+    
+    // Instanciación del módulo ALU
+    ALU #(
+        .WIDTH(WIDTH)
+    ) uut (
+        .in1(in1),
+        .in2(in2),
+        .op(op),
+        .dec_bin(dec_bin),
+        .unis_bin(unis_bin),
+        .zero(zero),
+        .error(error)
+    );
+    
+    // Bloques de inicialización
+    initial begin
+        // Inicialización de señales
+        in1 = 0;
+        in2 = 0;
+        op = 2'b00; // Operación de suma (SUM)
+        
+        // Espera un poco antes de cambiar las señales
+        #10;
+        
+        // Cambiar las entradas para probar el módulo
+        in1 = 3;
+        in2 = 2;
+        op = 2'b00; // SUM
+        #10;
+        
+        in1 = 5;
+        in2 = 3;
+        op = 2'b01; // Resta (SUB)
+        #10;
+        
+        in1 = 4;
+        in2 = 2;
+        op = 2'b10; // Multiplicación (MUL)
+        #10;
+        
+        in1 = 6;
+        in2 = 2;
+        op = 2'b11; // División (DIV)
+        #10;
+        
+        in2 = 0; // Probar error de división por cero
+        op = 2'b11;
+        #10;
+        
+        $finish; // Termina la simulación
+    end
+    
+    // Mostrar las señales de salida
+    initial begin
+        $monitor("in1 = %d, in2 = %d, op = %b, dec_bin = %d, unis_bin = %d, zero = %b, error = %b", 
+                 in1, in2, op, dec_bin, unis_bin, zero, error);
+    end
 
 endmodule
+
