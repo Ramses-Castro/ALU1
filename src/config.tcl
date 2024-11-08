@@ -71,3 +71,7 @@ set_property package_pin v14 [get_ports {unis_bin[1]}]
 set_property iostandard lvcmos33 [get_ports {unis_bin[1]}]
 set_property package_pin u14 [get_ports {unis_bin[0]}]
 set_property iostandard lvcmos33 [get_ports {unis_bin[0]}]
+
+# asignación de pines para el reset (activo bajo)
+set_property package_pin p8 [get_ports {rst_n}]
+set_property iostandard lvcmos33 [get_ports {rst_n}]
