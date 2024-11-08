@@ -24,7 +24,7 @@ module tb ();
   wire [7:0] uio_oe;
 
   // Replace tt_um_example with your module name:
-  ALU_Displays.v (
+  ALU_Displays (
 
       // Include power ports for the Gate Level test:
 `ifdef GL_TEST
