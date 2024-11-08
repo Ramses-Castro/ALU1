@@ -1,4 +1,4 @@
-`default_nettype none
+default_nettype none
 
 module ALU #(
   parameter WIDTH = 3
@@ -78,4 +78,20 @@ always @(*) begin
   if (out == 0) zero = 1;
 end
 
+endmodule
+
+// Aquí agregamos el módulo tt_um_example como ejemplo
+module tt_um_example (
+    input wire clk,              // Reloj de entrada
+    input wire reset,            // Reset
+    input wire [3:0] in_data,    // Datos de entrada
+    output reg [3:0] out_data    // Datos de salida
+);
+    // Ejemplo de lógica del módulo tt_um_example
+    always @(posedge clk or posedge reset) begin
+        if (reset)
+            out_data <= 4'b0000;  // Resetear salida
+        else
+            out_data <= in_data; // Propagar entrada a salida
+    end
 endmodule
