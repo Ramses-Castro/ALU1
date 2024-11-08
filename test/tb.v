@@ -4,6 +4,7 @@ module tb;
     reg reset;
     reg ena;  // Señal de habilitación
     reg [3:0] in_data;
+    reg ui_in;   // Añadir el puerto ui_in en el testbench
     wire [3:0] out_data;
 
     // Instanciación del módulo tt_um_example
@@ -12,6 +13,7 @@ module tb;
         .reset(reset),
         .ena(ena),        // Conectar 'ena'
         .in_data(in_data),
+        .ui_in(ui_in),    // Conectar 'ui_in' aquí
         .out_data(out_data)
     );
 
@@ -24,6 +26,7 @@ module tb;
         reset = 0;
         ena = 0;  // Deshabilitado por defecto
         in_data = 4'b1010;
+        ui_in = 1; // Inicialización del puerto ui_in
 
         // Aplicar reset
         reset = 1;
@@ -39,8 +42,7 @@ module tb;
     end
 
     initial begin
-        $monitor("Time: %0t | ena: %b | in_data: %b | out_data: %b", $time, ena, in_data, out_data);
+        $monitor("Time: %0t | ena: %b | in_data: %b | ui_in: %b | out_data: %b", $time, ena, in_data, ui_in, out_data);
     end
 
 endmodule
-
