@@ -84,16 +84,17 @@ endmodule
 // Módulo tt_um_example (Ejemplo simple)
 module tt_um_example (
     input wire clk,              // Reloj de entrada
-    input wire reset,            // Reset
-    input wire ena,              // Puerto habilitador agregado
+    input wire reset,            // Reset (activo alto)
+    input wire ena,              // Puerto habilitador
     input wire [3:0] in_data,    // Datos de entrada
     output reg [3:0] out_data    // Datos de salida
 );
+
     // Ejemplo de lógica del módulo tt_um_example
     always @(posedge clk or posedge reset) begin
         if (reset)
-            out_data <= 4'b0000;  // Resetear salida
-        else if (ena)             // Propagar solo cuando 'ena' esté activado
+            out_data <= 4'b0000;  // Resetear salida a 0000 cuando el reset sea activo
+        else if (ena)             // Propagar solo cuando 'ena' esté activo
             out_data <= in_data; // Propagar entrada a salida
     end
 endmodule
