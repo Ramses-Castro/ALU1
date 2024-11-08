@@ -8,7 +8,7 @@ module tb;
     wire [3:0] out_data;
 
     // Instanciación del módulo tt_um_example
-    tt_um_example uut (
+    project.v (
         .clk(clk),
         .reset(reset),
         .ena(ena),        // Conectar 'ena'
