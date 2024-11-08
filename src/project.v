@@ -1,4 +1,4 @@
-`default_nettype none
+default_nettype none
 
 module ALU #(
   parameter WIDTH = 3
@@ -80,18 +80,22 @@ end
 
 endmodule
 
-// Aquí agregamos el módulo tt_um_example como ejemplo
+// Aquí agregamos el módulo tt_um_example con el puerto 'ena'
 module tt_um_example (
-    input wire clk,              // Reloj de entrada
-    input wire reset,            // Reset
-    input wire [3:0] in_data,    // Datos de entrada
-    output reg [3:0] out_data    // Datos de salida
+    input wire clk,               // Reloj de entrada
+    input wire reset,             // Reset
+    input wire ena,               // Puerto 'ena' para habilitar o deshabilitar la lógica
+    input wire [3:0] in_data,     // Datos de entrada
+    output reg [3:0] out_data     // Datos de salida
 );
-    // Ejemplo de lógica del módulo tt_um_example
+
+    // Lógica del módulo que depende del puerto 'ena'
     always @(posedge clk or posedge reset) begin
         if (reset)
             out_data <= 4'b0000;  // Resetear salida
-        else
+        else if (ena)             // Si 'ena' está habilitado
             out_data <= in_data; // Propagar entrada a salida
+        else
+            out_data <= 4'bZZZZ; // Deshabilitar la salida cuando 'ena' no está habilitado
     end
 endmodule
